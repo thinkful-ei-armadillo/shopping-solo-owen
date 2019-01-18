@@ -13,16 +13,17 @@ const STORE = [
 function renderShoppingList() {
   // this function will render the shopping list in the DOM based on current STORE
   // render the STORE items in html by using a template function
-  let shoppingListHTML = formatAsShoppingList(STORE);
+  let shoppingListHTML = createListItemHTML(STORE);
   //insert html to parent shopping list element
   $('.js-shopping-list').html(shoppingListHTML);
+  console.log('Rendering STORE to DOM...');
 }
 
-function formatAsShoppingList(database) {
-  return database.map((item, index) => shoppingItemHTML(item, index)).join('');
+function createListItemHTML(database) {
+  return database.map((item, index) => shoppingItemTemplate(item, index)).join('');
 }
 
-function shoppingItemHTML(item, itemIndex) {
+function shoppingItemTemplate(item, itemIndex) {
   return `
   <li class="js-item-index-element" data-item-index="${itemIndex}">
   <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>
@@ -39,23 +40,27 @@ function shoppingItemHTML(item, itemIndex) {
 
 function handleNewEntries() {
   // this function will handle inputs from users in the submit form at the top
-  $('#js-shopping-list-form').on('submit', e => {
+  $('#js-shopping-list-form').on('submit', function(e) { // listen to form submission
     e.preventDefault();
-    
-  }
-  }
-  // from #js-shopping-list-form
-  // listen to form submission and grab text input
-  // reformat raw text input to be object ready for STORE
-  // push to STORE
-  // send render function
-  //log message to indicate function has completed successfully
-  console.log('handleNewEntries ran');
+    let textInput = $('.js-shopping-list-entry').val(); // grab raw text input
+
+    // reformat raw text input to object for STORE
+    let shoppingItem = createItemObject(textInput);
+    // add successfully reformatted raw text input to STORE
+    addToDatabase(shoppingItem);
+
+    // render modified STORE
+    renderShoppingList();
+  });
+  console.log('Ready to add entries to STORE...'); //status message RTG
 }
 
-function addItemToShoppingList(itemName) {
-  console.log(`Adding "${itemName}" to shopping list`);
-  STORE.push({name: itemName, checked: false});
+function createItemObject(itemName, checked=false) {
+  return {name: itemName, checked};
+}
+
+function addToDatabase(itemName) {
+  STORE.push(itemName);
 }
 
 function handleChecked() {
@@ -66,7 +71,7 @@ function handleChecked() {
   // use index to toggle associated checked property in STORE
   // send render function
   //log message to indicate function has completed successfully
-  console.log('handleChecked ran');
+  console.log('Toggle strikethrough loaded...');
 }
 
 function handleDelete() {
@@ -82,8 +87,9 @@ function handleDelete() {
     STORE.splice(itemIndex, 1); //remember that splice will cut all elements unless it is given a limit argument. here we splice 1 element, inclusive starting from the element that splice searched for
     // send render function
     renderShoppingList();
-    console.log('handleDelete ran');
+    
   });
+  console.log('Delete entry loaded...');
 }
 
 function getitemIndexfromElement(item){
