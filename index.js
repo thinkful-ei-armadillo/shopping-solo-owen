@@ -11,50 +11,58 @@ const STORE = [
 ];
 
 function renderTheList() {
-  // this function will render the shopping list in the DOM
-  
-  // it will render it by reading the current state of the STORE
-  
-  // by reading the STORE, it will construst <ul> class using the html <li> template function
-  
+  // this function will render the shopping list in the DOM  
+
+  // it will render it by reading the current state of the STORE  
+  // by reading the STORE, it will construst <ul> class using the html <li> template function  
   // it will then send the constructed template to the DOM using the html() method
 
+  //log message to indicate function has completed successfully
   console.log('renderTheList ran');
 }
 
 function handleNewEntries() {
   // this function will handle inputs from users in the submit form at the top
+
   // from #js-shopping-list-form
   // listen to form submission and grab text input
   // reformat raw text input to be object ready for STORE
   // push to STORE
   // send render function
+  //log message to indicate function has completed successfully
   console.log('handleNewEntries ran');
 }
 
 function handleChecked() {
   // this function will handle checking items on the shopping list, when the 'check' button is toggled
-  //listen to 'CHECK' button click
+
+  // listen to 'CHECK' button click
   // traverse to the shopping item class to get the index in STORE
   // use index to toggle associated checked property in STORE
   // send render function
+  //log message to indicate function has completed successfully
   console.log('handleChecked ran');
 }
 
 function handleDelete() {
   // this function will handle deletion of items from shopping list when 'delete' button is clicked
+
   // listen to "DELETE" button click
   let shoppingItem = '';
   $('.shopping-list').on('click', '.shopping-item-delete', (event) => {
     shoppingItem = $(event.currentTarget).parents('.shopping-item-controls').siblings('.shopping-item'); 
   };
+
   // traverse to the shopping item class to get the index in STORE
   let itemIndex = getitemIndexfromSTORE();
-  STORE[indexofshoppingitem].remove();
+  
   // use index to remove associated checked property in STORE
+  STORE[indexofshoppingitem].remove();
 
   // send render function
   renderTheList();
+
+  //log message to indicate function has completed successfully
   console.log('handleDelete ran');
 }
 
@@ -67,5 +75,6 @@ function handleShoppingList() {
   handleChecked();
   handleDelete();
 }
+
 // calling the 'handle shopping list' function when the page loads
 $(handleShoppingList);
