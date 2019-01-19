@@ -65,14 +65,15 @@ function addToDatabase(itemName) {
 
 function handleChecked() {
   // this function will handle checking items on the shopping list, when the 'check' button is toggled
+  
   // listen to 'CHECK' button click
   $('.shopping-list').on('click', '.shopping-item-toggle', function(e) { //toggle checkoff
-    // console.log('index from 'checked' button trigger', item, 'from event', e.target);
-    
+    // fetch STORE index associated with shopping-item check button event trigger
     let itemIndex = getitemIndexfromElement(e.target);
-    // console.log('accessing', STORE[item].checked, 'property in', STORE[item]);
+   
     // use index to toggle associated checked property in STORE
     toggleProperty(itemIndex, 'checked');
+
     // render modified STORE
     renderShoppingList();
   });  
