@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 /* global $ */
 'use strict';
-
-// setting our STORE so our data can be independent
+// setting up a STORE database to separate page data from DOM
 
 const STORE = [
   {name: 'apples', checked: false},
@@ -11,9 +10,23 @@ const STORE = [
   {name: 'bread', checked: false}
 ];
 
-function generateItemElement(item, itemIndex, template) {
-  return `<li class="js-item-index-element" data-item-index="${itemIndex}">
-  <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>
+function renderShoppingList() {
+  // this function will render the shopping list in the DOM based on current STORE
+  // render the STORE items in html by using a template function
+  let shoppingListHTML = createListItemHTML(STORE);
+  //insert html to parent shopping list element
+  $('.js-shopping-list').html(shoppingListHTML);
+  console.log('Rendering STORE to DOM...');
+}
+
+function createListItemHTML(database) {
+  return database.map((item, index) => shoppingItemTemplate(item, index)).join('');
+}
+
+function shoppingItemTemplate(item, itemIndex) {
+  return `
+  <li class="js-item-index-element" data-item-index="${itemIndex}">
+  <span class="shopping-item js-shopping-item ${item.checked ? 'class = shopping-item__checked' : ''}">${item.name}</span>
   <div class="shopping-item-controls">
     <button class="shopping-item-toggle js-item-toggle">
         <span class="button-label">check</span>
@@ -25,63 +38,54 @@ function generateItemElement(item, itemIndex, template) {
 </li>`;
 }
 
-function generateShoppingItemsString(shoppingList) {
-  // this will read the store and generate a string for the renderTheList function to use
-  console.log('Generating shopping list element');
-  const items = shoppingList.map((item, index) => generateItemElement(item, index));
-  // generateItemElement(item, join);
-
-  return items.join('');
-}
-
-function renderTheList() {
-
-  // this function will render the shopping list in the DOM
-  console.log('renderTheList ran');
-  // it will render it by reading the current state of the generateShoppingItemsString
-  const shoppingListItemsString = generateShoppingItemsString(STORE);
-  // it will then send the constructed template to the DOM using the html() method
-  $('.js-shopping-list').html(shoppingListItemsString);
-  
-}
-
-function addItemToShoppingList(itemName) {
-  console.log(`Adding "${itemName}" to shopping list`);
-  STORE.push({name: itemName, checked: false});
-}
-
 function handleNewEntries() {
   // this function will handle inputs from users in the submit form at the top
+  $('#js-shopping-list-form').on('submit', function(e) { // listen to form submission
+    e.preventDefault();
+    let textInput = $('.js-shopping-list-entry').val(); // grab raw text input
 
-  // from #js-shopping-list-form
-  // listen to form submission and grab text input
-  // reformat raw text input to be object ready for STORE
-  // push to STORE
-  // send render function
-  //log message to indicate function has completed successfully
-  console.log('handleNewEntries ran');
+    // reformat raw text input to object for STORE
+    let shoppingItem = createItemObject(textInput);
+    // add successfully reformatted raw text input to STORE
+    addToDatabase(shoppingItem);
+
+    // render modified STORE
+    renderShoppingList();
+  });
+  console.log('Ready to add entries to STORE...'); //status message RTG
 }
 
-function getitemIndexfromElement(item){
-  //pass in item 
-  const itemIndexString = $(item).closest('.js-item-index-element').attr('data-item-index');
-  return parseInt(itemIndexString, 10);
+function createItemObject(itemName, checked=false) {
+  return {name: itemName, checked};
+}
+
+function addToDatabase(itemName) {
+  STORE.push(itemName);
 }
 
 function handleChecked() {
   // this function will handle checking items on the shopping list, when the 'check' button is toggled
-
   // listen to 'CHECK' button click
-  // traverse to the shopping item class to get the index in STORE
-  // use index to toggle associated checked property in STORE
-  // send render function
-  //log message to indicate function has completed successfully
-  console.log('handleChecked ran');
+  $('.shopping-list').on('click', '.shopping-item-toggle', function(e) { //toggle checkoff
+    // console.log('index from 'checked' button trigger', item, 'from event', e.target);
+    
+    let itemIndex = getitemIndexfromElement(e.target);
+    // console.log('accessing', STORE[item].checked, 'property in', STORE[item]);
+    // use index to toggle associated checked property in STORE
+    toggleProperty(itemIndex, 'checked');
+    // render modified STORE
+    renderShoppingList();
+  });  
+  console.log('Toggle strikethrough loaded...'); //status message RTG
 }
+
+function toggleProperty (index, prop) {
+  return STORE[index][prop] = !STORE[index][prop];
+}
+
 
 function handleDelete() {
   // this function will handle deletion of items from shopping list when 'delete' button is clicked
-
   // listen to "DELETE" button click
   let shoppingItem = '';
   $('.shopping-list').on('click', '.shopping-item-delete', (event) => {
@@ -90,21 +94,26 @@ function handleDelete() {
     // traverse to the shopping item class to get the index in STORE
     let itemIndex = getitemIndexfromElement(shoppingItem); //eventually combine line event listener and this line traversal
     // use index to remove associated checked property in STORE
-    STORE.splice(itemIndex, 1);
+    STORE.splice(itemIndex, 1); //remember that splice will cut all elements unless it is given a limit argument. here we splice 1 element, inclusive starting from the element that splice searched for
     // send render function
-    renderTheList();
-    console.log('handleDelete ran');
+    renderShoppingList();
+    
   });
+  console.log('Delete entry loaded...');
 }
 
-
+function getitemIndexfromElement(item){
+  //pass in shopping-item
+  const itemIndexString = $(item).closest('.js-item-index-element').attr('data-item-index');
+  return parseInt(itemIndexString, 10); //this line coerces the index string selected from HTML
+}
 
 // this function calls all of the function stubs to run together on page load
 function handleShoppingList() {
-  renderTheList();
-  handleNewEntries();
-  handleChecked();
-  handleDelete();
+  renderShoppingList(); //Render shoppinglist based on STORE
+  handleNewEntries(); //add shopping item text submission box/button
+  handleChecked(); //toggling shopping item strikethrough button
+  handleDelete(); //removing shopping items button
 }
 
 // calling the 'handle shopping list' function when the page loads
