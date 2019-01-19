@@ -26,7 +26,7 @@ function createListItemHTML(database) {
 function shoppingItemTemplate(item, itemIndex) {
   return `
   <li class="js-item-index-element" data-item-index="${itemIndex}">
-  <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>
+  <span class="shopping-item js-shopping-item ${item.checked ? 'class = shopping-item__checked' : ''}">${item.name}</span>
   <div class="shopping-item-controls">
     <button class="shopping-item-toggle js-item-toggle">
         <span class="button-label">check</span>
@@ -65,14 +65,24 @@ function addToDatabase(itemName) {
 
 function handleChecked() {
   // this function will handle checking items on the shopping list, when the 'check' button is toggled
-
   // listen to 'CHECK' button click
-  // traverse to the shopping item class to get the index in STORE
-  // use index to toggle associated checked property in STORE
-  // send render function
-  //log message to indicate function has completed successfully
-  console.log('Toggle strikethrough loaded...');
+  $('.shopping-list').on('click', '.shopping-item-toggle', function(e) { //toggle checkoff
+    // console.log('index from 'checked' button trigger', item, 'from event', e.target);
+    
+    let itemIndex = getitemIndexfromElement(e.target);
+    // console.log('accessing', STORE[item].checked, 'property in', STORE[item]);
+    // use index to toggle associated checked property in STORE
+    toggleProperty(itemIndex, 'checked');
+    // render modified STORE
+    renderShoppingList();
+  });  
+  console.log('Toggle strikethrough loaded...'); //status message RTG
 }
+
+function toggleProperty (index, prop) {
+  return STORE[index][prop] = !STORE[index][prop];
+}
+
 
 function handleDelete() {
   // this function will handle deletion of items from shopping list when 'delete' button is clicked
