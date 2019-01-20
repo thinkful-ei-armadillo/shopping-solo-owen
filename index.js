@@ -10,10 +10,10 @@ const STORE = [
   {name: 'bread', checked: false}
 ];
 
-function renderShoppingList() {
+function renderShoppingList(database) {
   // this function will render the shopping list in the DOM based on current STORE
   // render the STORE items in html by using a template function
-  let shoppingListHTML = createListItemHTML(STORE);
+  let shoppingListHTML = createListItemHTML(database);
   //insert html to parent shopping list element
   $('.js-shopping-list').html(shoppingListHTML);
   console.log('Rendering STORE to DOM...');
@@ -38,24 +38,35 @@ function shoppingItemTemplate(item, itemIndex) {
 </li>`;
 }
 
-function handleNewEntries() {
-  // this function will handle inputs from users in the submit form at the top
-  $('#js-shopping-list-form').on('submit', function(e) { // listen to form submission
+function handleAddShoppingItem() {
+  $('#js-shopping-list-form').on('submit', '.add', function(e) { // listen to form submission
     e.preventDefault();
-    let textInput = $('.js-shopping-list-entry').val(); // grab raw text input
-
-    // reformat raw text input to object for STORE
-    let shoppingItem = createItemObject(textInput);
-    // add successfully reformatted raw text input to STORE
+    let shoppingItem= formatTextInput();
+    // use fetched text input in whatever feature user is expecting to occur
     addToDatabase(shoppingItem);
-
-    // render modified STORE
-    renderShoppingList();
+    renderShoppingList(STORE);
   });
-  console.log('Ready to add entries to STORE...'); //status message RTG
 }
 
-function createItemObject(itemName, checked=false) {
+function handleSearchShoppingList() {
+  $('#js-shopping-list-form').on('submit', '.search', function(e) { // listen to form submission
+    e.preventDefault();
+    let shoppingItem = formatTextInput();
+    let searchResults = searchDatabase(shoppingItem);
+    renderShoppingList(searchResults);
+  });
+}
+
+function formatTextInput() {
+  let textInput = $('.js-shopping-list-entry').val(); // grab raw text input
+  return generateShoppingItem(textInput);  
+}
+
+function searchDatabase(shoppingItem) {
+  return STORE.filter(shoppingItem);
+}
+
+function generateShoppingItem(itemName, checked=false) {
   return {name: itemName, checked};
 }
 
@@ -74,7 +85,7 @@ function handleChecked() {
     // use index to toggle associated checked property in STORE
     toggleProperty(itemIndex, 'checked');
     // render modified STORE
-    renderShoppingList();
+    renderShoppingList(STORE);
   });  
   console.log('Toggle strikethrough loaded...'); //status message RTG
 }
@@ -96,7 +107,7 @@ function handleDelete() {
     // use index to remove associated checked property in STORE
     STORE.splice(itemIndex, 1); //remember that splice will cut all elements unless it is given a limit argument. here we splice 1 element, inclusive starting from the element that splice searched for
     // send render function
-    renderShoppingList();
+    renderShoppingList(STORE);
     
   });
   console.log('Delete entry loaded...');
@@ -108,10 +119,13 @@ function getitemIndexfromElement(item){
   return parseInt(itemIndexString, 10); //this line coerces the index string selected from HTML
 }
 
+
+
 // this function calls all of the function stubs to run together on page load
 function handleShoppingList() {
-  renderShoppingList(); //Render shoppinglist based on STORE
-  handleNewEntries(); //add shopping item text submission box/button
+  renderShoppingList(STORE); //Render shoppingListHTML based on STORE
+  handleAddShoppingItem(); //add shopping-item to STORE
+  handleSearchShoppingList(); //search shopping-item in STORE
   handleChecked(); //toggling shopping item strikethrough button
   handleDelete(); //removing shopping items button
 }
