@@ -1,7 +1,29 @@
 /* eslint-disable no-console */
 /* global $ */
 'use strict';
+
+// issues:
+
+// #1 accepts no text input, need to reject ''
+
+// #2 adding item while in search filter renders entire list again, not sure what the default behavior should be
+//    potentially add item to underlying STORE while still serving search term STORE.filter state in view
+//    this means searchResults needs to be accessible to both add and submit items functions
+//    searchResults needs to be a global variable, or maybe another key in STORE
+
+// #3 current clear textfield implementation violates 'don't directly manipulate the DOM' rule
+//    potentially, and may need to be wrapped into STORE as well?
+//    add item STATE should update to clear text field
+//    search item STATE should either retain text field input if there are no matches, or clear if there are?
+
+
+
+// SHOPPING LIST APPLICATION
+
 // setting up a STORE database to separate page data from DOM
+// adding additional parent level keys, moving items into their own key
+// to support multiple page states we want to render
+
 
 const STORE = [
   {name: 'apples', checked: false},
@@ -9,11 +31,17 @@ const STORE = [
   {name: 'milk', checked: true},
   {name: 'bread', checked: false}
 ];
+// searchResults: {};
+// hideCompleted: false;
 
 function renderShoppingList(database) {
   // this function will render the shopping list in the DOM based on current STORE
   // render the STORE items in html by using a template function
   let shoppingListHTML = createListItemHTML(database);
+
+  // reinitialize text field, ad hoc implementation and should be changed
+  document.getElementById('js-shopping-list-entry').value = '';
+
   //insert html to parent shopping list element
   $('.js-shopping-list').html(shoppingListHTML);
   console.log('Rendering STORE to DOM...');
@@ -55,12 +83,12 @@ function handleAddShoppingItem() {
 function handleSearchShoppingList() {
   $('#js-shopping-list-form').on('click', '.js-search-shopping-list', function(e) { // listen to form submission
     e.preventDefault();
+    // retrieve raw textinput
     let searchTerm = getTextInput();
+    // use filter to find matching names in STORE
     let searchResults = searchDatabase(searchTerm);
+    // render only the filtered list
     renderShoppingList(searchResults);
-    // console.log('searched for', shoppingItem.name);
-    // console.log(`the name prop of the ${shoppingItem} object`);
-    console.log('which should match a name prop value', STORE);
     console.log('found', searchResults);
   });
   console.log('Ready to search shopping list');
@@ -125,6 +153,9 @@ function getitemIndexfromElement(item){
   const itemIndexString = $(item).closest('.js-item-index-element').attr('data-item-index');
   return parseInt(itemIndexString, 10); //this line coerces the index string selected from HTML
 }
+
+// checkboxes receive 'change' and 'input' events
+
 
 
 
