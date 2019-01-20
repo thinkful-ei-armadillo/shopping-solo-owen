@@ -39,39 +39,47 @@ function shoppingItemTemplate(item, itemIndex) {
 }
 
 function handleAddShoppingItem() {
-  $('#js-shopping-list-form').on('submit', '.add', function(e) { // listen to form submission
+  $('#js-shopping-list-form').submit('.js-add-to-shopping-list', function(e) { // listen to form submission
     e.preventDefault();
-    let shoppingItem= formatTextInput();
-    // use fetched text input in whatever feature user is expecting to occur
+    // convert raw text input into a shopping item ready for STORE
+    let shoppingItem = formatTextInput(getTextInput());
+    // add newly converted item to STORE
     addToDatabase(shoppingItem);
+    // render modified DOM
     renderShoppingList(STORE);
+    console.log('added', shoppingItem);
   });
+  console.log('Ready to add to shopping list');
 }
-
+//current issue: difference between submit from text field/button throws off creating object correctly
 function handleSearchShoppingList() {
-  $('#js-shopping-list-form').on('submit', '.search', function(e) { // listen to form submission
+  $('#js-shopping-list-form').on('click', '.js-search-shopping-list', function(e) { // listen to form submission
     e.preventDefault();
-    let shoppingItem = formatTextInput();
-    let searchResults = searchDatabase(shoppingItem);
+    let searchTerm = getTextInput();
+    let searchResults = searchDatabase(searchTerm);
     renderShoppingList(searchResults);
+    // console.log('searched for', shoppingItem.name);
+    // console.log(`the name prop of the ${shoppingItem} object`);
+    console.log('which should match a name prop value', STORE);
+    console.log('found', searchResults);
   });
+  console.log('Ready to search shopping list');
 }
 
-function formatTextInput() {
-  let textInput = $('.js-shopping-list-entry').val(); // grab raw text input
-  return generateShoppingItem(textInput);  
+function getTextInput() {
+  return $('.js-shopping-list-entry').val(); // grab raw text input
 }
 
-function searchDatabase(shoppingItem) {
-  return STORE.filter(shoppingItem);
+function searchDatabase(searchTerm) { //recieve raw text str and filter STORE based on match to .name property
+  return STORE.filter(item => item.name === searchTerm);
 }
 
-function generateShoppingItem(itemName, checked=false) {
-  return {name: itemName, checked};
+function formatTextInput(itemName) {
+  return {'name': itemName, 'checked':false};
 }
 
-function addToDatabase(itemName) {
-  STORE.push(itemName);
+function addToDatabase(item) {
+  STORE.push(item);
 }
 
 function handleChecked() {
@@ -99,7 +107,7 @@ function handleDelete() {
   // this function will handle deletion of items from shopping list when 'delete' button is clicked
   // listen to "DELETE" button click
   let shoppingItem = '';
-  $('.shopping-list').on('click', '.shopping-item-delete', (event) => {
+  $('.shopping-list').on('click', '.shopping-item-delete', function(event) {
     shoppingItem = $(event.currentTarget).parents('.shopping-item-controls').siblings('.shopping-item'); 
   
     // traverse to the shopping item class to get the index in STORE
@@ -107,8 +115,7 @@ function handleDelete() {
     // use index to remove associated checked property in STORE
     STORE.splice(itemIndex, 1); //remember that splice will cut all elements unless it is given a limit argument. here we splice 1 element, inclusive starting from the element that splice searched for
     // send render function
-    renderShoppingList(STORE);
-    
+    renderShoppingList(STORE);    
   });
   console.log('Delete entry loaded...');
 }
