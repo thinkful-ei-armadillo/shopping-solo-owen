@@ -67,7 +67,7 @@ function shoppingItemTemplate(item, itemIndex) {
   console.log(item.name, item.editable);
   return (STORE.hideChecked && item.checked) ? '': `
   <li class="js-item-index-element" data-item-index="${itemIndex}">
-    <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}"> ${item.editable ? `<input type=text class="shopping-item-edit js-item-edit" placeholder=${item.name}></input>` : item.name} </span>
+    <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}"> ${item.name} </span>
     <div class="shopping-item-controls">
       <button class="shopping-item-toggle js-item-toggle">
           <span class="button-label">check</span>
@@ -75,6 +75,10 @@ function shoppingItemTemplate(item, itemIndex) {
       <button class="shopping-item-delete js-item-delete">
           <span class="button-label">delete</span>
       </button>
+      <button class="shopping-item-edit-button js-item-edit" id="edit">
+          <span class="button-label">edit</span>
+      </button>
+      <input type="text" class="shopping-item-edit js-item-edit-text" id="edit" placeholder="Edit Item">
     </div>
   </li>`;
 }
@@ -128,7 +132,7 @@ function addToDatabase(item) {
 function handleChecked() {
   // this function will handle checking items on the shopping list, when the 'check' button is toggled
   // listen to 'CHECK' button click
-  $('.shopping-list').on('click', '.shopping-item-toggle', function(e) { //toggle checkoff
+  $('.js-shopping-list').on('click', '.shopping-item-toggle', function(e) { //toggle checkoff
     // console.log('index from 'checked' button trigger', item, 'from event', e.target);
     
     let itemIndex = getitemIndexfromElement(e.target);
@@ -149,7 +153,7 @@ function toggleProperty (index, prop) {
 function handleDelete() {
   // this function will handle deletion of items from shopping list when 'delete' button is clicked
   // listen to "DELETE" button click
-  $('.shopping-list').on('click', '.shopping-item-delete', function(event) {  
+  $('.js-shopping-list').on('click', '.shopping-item-delete', function(event) {  
     // traverse to the shopping item class to get the index in STORE
     let itemIndex = getitemIndexfromElement(event.target);
     // use index to remove associated checked property in STORE
@@ -178,32 +182,53 @@ function handleHideChecked() {
   console.log('Ready to hide checked...');
 }
 
+// ONE VERSION OF HANDLEEDIT
+// The idea here was to substitute the shopping item text with a text box, then change
+// the shopping item based on the submission from that text box
+
+// function handleEdit() {
+//   // trigger on click .js-shopping-item
+//   // toggle "editable" STORE.items property
+//   // render modified STORE
+//   $('.js-shopping-list').on('dblclick', '.js-shopping-item', function(e) {
+//     let itemIndex = getitemIndexfromElement(e.target);
+//     STORE.items[itemIndex].editable = !STORE.items[itemIndex].editable;
+//     // STORE.items[$('.js-shopping-item').val()].editable = !STORE[$('.js-shopping-item').val()].editable;
+//     renderShoppingList(STORE);
+//     console.log('item now editable');
+//     // after rendering item with text box instead of STORE.item.name text
+//     // place a listener on the text box submission
+//     // text box event listener is destroyed when there is no editable box from this function 
+//   });
+//   $('.js-shopping-list').on('submit', '.js-item-edit', function(e) {
+//     e.preventDefault();
+//     let itemIndex = getitemIndexfromElement(e.target);
+//     // set the STORE.item.name to the captured text input
+//     let newName = getTextInput('.js-item-edit');
+//     STORE.items[itemIndex].name = newName;
+//     renderShoppingList(STORE);
+//   });
+//   console.log('Ready to edit items');
+// }
+
+
+//SECOND VERSION OF HANDLE EDIT
+// this version of handleEdit() uses a newly added edit button to create a text field, 
+// then use the submit from the button to edit the item
+
 function handleEdit() {
-  // trigger on click .js-shopping-item
-  // toggle "editable" STORE.items property
-  // render modified STORE
-  $('.shopping-list').on('dblclick', '.js-shopping-item', function(e) {
+  $('.js-shopping-list').on('click', '.shopping-item-edit-button', function(e) { 
     let itemIndex = getitemIndexfromElement(e.target);
-    STORE.items[itemIndex].editable = !STORE.items[itemIndex].editable;
-    // STORE.items[$('.js-shopping-item').val()].editable = !STORE[$('.js-shopping-item').val()].editable;
-    renderShoppingList(STORE);
-    console.log('item now editable');
-    // after rendering item with text box instead of STORE.item.name text
-    // place a listener on the text box submission
-    // text box event listener is destroyed when there is no editable box from this function 
-  });
-  $('.shopping-list').on('submit', '.js-item-edit', function(e) {
-    e.preventDefault();
-    let itemIndex = getitemIndexfromElement(e.target);
-    // set the STORE.item.name to the captured text input
-    let newName = getTextInput('.js-item-edit');
-    STORE.items[itemIndex].name = newName;
+    let textInput = getTextInput('.js-item-edit-text');
+    STORE.items[itemIndex].name = textInput;
+    console.log(`changing ${STORE.items[itemIndex]}'s name to ${textInput}`);
+    // toggleProperty(itemIndex, 'editable');
+    // render modified STORE
     renderShoppingList(STORE);
   });
-  console.log('Ready to edit items');
+  
+  console.log('Ready to change item name...'); //status message RTG
 }
-
-
 
 // this function calls all of the function stubs to run together on page load
 function handleShoppingList() {
